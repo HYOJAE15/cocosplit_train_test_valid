@@ -10,9 +10,9 @@ parser.add_argument('annotations', metavar='coco_annotations', type=str,
 parser.add_argument('--train_ratio', type=float, dest='ratio_train', help='set train dataset ratio')
 parser.add_argument('--valid_ratio', type=float,  dest='ratio_valid',help='set valid dataset ratio')
 parser.add_argument('--test_ratio', type=float,  dest='ratio_test',help='set test dataset ratio')
-parser.add_argument('--trainJson_name', type=str, default='train.json', help='Where to store COCO training annotations')
-parser.add_argument('--validJson_name', type=str, default='valid.json', help='Where to store COCO valid annotations')
-parser.add_argument('--testJson_name', type=str, default='test.json', help='Where to store COCO test annotations')
+parser.add_argument('--trainJson_name', type=str, default='instances_Train.json', help='Where to store COCO training annotations')
+parser.add_argument('--validJson_name', type=str, default='instances_Valid.json', help='Where to store COCO valid annotations')
+parser.add_argument('--testJson_name', type=str, default='instances_Test.json', help='Where to store COCO test annotations')
 parser.add_argument('--annotations', dest='annotations', action='store_true',
                     help='Ignore all images without annotations. Keep only these with at least one annotation')
 parser.add_argument('--save_path', type=str, default='.', help='main storing path')
@@ -66,18 +66,23 @@ def main(args):
         
 
         # Set img file and json file path
-        train_path = os.path.join(args.save_path, 'annotations')
-        train_image_path = os.path.join(args.save_path, 'images')
-        valid_path = os.path.join(args.save_path, 'valid')
-        valid_image_path = os.path.join(valid_path, 'images')
-        test_path = os.path.join(args.save_path, 'test')
-        test_image_path = os.path.join(test_path, 'images')
+        anno_path = os.path.join(args.save_path, 'annotations')
+        
+        # train_path = os.path.join(args.save_path, 'train')
+        train_image_path = os.path.join(args.save_path, 'train')
 
-        for pp in [train_path, valid_path, test_path]:
+        # valid_path = os.path.join(args.save_path, 'valid')
+        valid_image_path = os.path.join(args.save_path, 'valid')
+
+        # test_path = os.path.join(args.save_path, 'test')
+        test_image_path = os.path.join(args.save_path, 'test')
+
+        for pp in [anno_path, train_image_path, valid_image_path, test_image_path]:
             if not os.path.exists(pp):
                 os.mkdir(pp)
-            if not os.path.exists(os.path.join(pp, 'images')):
-                os.mkdir(os.path.join(pp, 'images'))
+            
+            # if not os.path.exists(os.path.join(pp, 'images')):
+            #     os.mkdir(os.path.join(pp, 'images'))
         
         copy_cmd = 'cp'
         if args.os == 'window':
@@ -96,11 +101,11 @@ def main(args):
             os.system(f'{copy_cmd} "{os.path.join(args.image_path, fname)}" "{os.path.join(valid_image_path, fname)}"')
         print(f'Complete {len(z)} valid images')
 
-        save_coco(os.path.join(train_path,args.trainJson_name), info, licenses, x, filter_annotations(annotations, x), categories)
-        save_coco(os.path.join(test_path,args.testJson_name), info, licenses, y, filter_annotations(annotations, y), categories)
-        save_coco(os.path.join(valid_path,args.validJson_name), info, licenses, z, filter_annotations(annotations, z), categories)
+        save_coco(os.path.join(anno_path,args.trainJson_name), info, licenses, x, filter_annotations(annotations, x), categories)
+        save_coco(os.path.join(anno_path,args.testJson_name), info, licenses, y, filter_annotations(annotations, y), categories)
+        save_coco(os.path.join(anno_path,args.validJson_name), info, licenses, z, filter_annotations(annotations, z), categories)
 
-        print("Saved {} entries in {}, {} in {}, and {} in {}".format(len(x), train_path, len(y), test_path, len(z), valid_path))
+        print("Saved {} entries in {}, {} in {}, and {} in {}".format(len(x), train_image_path, len(y), test_image_path, len(z), valid_image_path))
 
 if __name__ == "__main__":
     main(args)
