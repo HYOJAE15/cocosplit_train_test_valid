@@ -29,7 +29,7 @@ ratio_test = args.ratio_test
 def save_coco(file, info, licenses, images, annotations, categories):
     with open(file, 'wt', encoding='UTF-8') as coco:
         json.dump({'licenses': licenses, 'info': info, 'categories': categories, 'images': images, 
-            'annotations': annotations}, coco, indent=None, sort_keys=False)
+            'annotations': annotations}, coco, indent=None, sort_keys=False, ensure_ascii=False)
 
 def filter_annotations(annotations, images):
     image_ids = funcy.lmap(lambda i: int(i['id']), images)
@@ -53,7 +53,7 @@ def main(args):
 
         # x: train, y: test z: valid
         xz, y = train_test_split(
-            images, test_size=ratio_test)
+            images, test_size=ratio_test, random_state=123)
 
         ratio_remaining = 1 - ratio_test
         ratio_valid_adjusted = ratio_valid / ratio_remaining
@@ -64,8 +64,10 @@ def main(args):
         if not os.path.exists(args.save_path):
             os.mkdir(args.save_path)
         
-        train_path = os.path.join(args.save_path, 'train')
-        train_image_path = os.path.join(train_path, 'images')
+
+        # Set img file and json file path
+        train_path = os.path.join(args.save_path, 'annotations')
+        train_image_path = os.path.join(args.save_path, 'images')
         valid_path = os.path.join(args.save_path, 'valid')
         valid_image_path = os.path.join(valid_path, 'images')
         test_path = os.path.join(args.save_path, 'test')
@@ -85,13 +87,13 @@ def main(args):
             fname = train_image['file_name']
             os.system(f'{copy_cmd} "{os.path.join(args.image_path, fname)}" "{os.path.join(train_image_path, fname)}"')
         print(f'Complete {len(x)} train images')
-        for valid_image in y:
-            fname = valid_image['file_name']
-            os.system(f'{copy_cmd} "{os.path.join(args.image_path, fname)}" "{os.path.join(valid_image_path, fname)}"')
-        print(f'Complete {len(y)} test images')
-        for test_image in z:
+        for test_image in y:
             fname = test_image['file_name']
             os.system(f'{copy_cmd} "{os.path.join(args.image_path, fname)}" "{os.path.join(test_image_path, fname)}"')
+        print(f'Complete {len(y)} test images')
+        for valid_image in z:
+            fname = valid_image['file_name']
+            os.system(f'{copy_cmd} "{os.path.join(args.image_path, fname)}" "{os.path.join(valid_image_path, fname)}"')
         print(f'Complete {len(z)} valid images')
 
         save_coco(os.path.join(train_path,args.trainJson_name), info, licenses, x, filter_annotations(annotations, x), categories)
