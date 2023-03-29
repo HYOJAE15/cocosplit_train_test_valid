@@ -28,8 +28,8 @@ ratio_test = args.ratio_test
 
 def save_coco(file, info, licenses, images, annotations, categories):
     with open(file, 'wt', encoding='UTF-8') as coco:
-        json.dump({ 'info': info, 'licenses': licenses, 'images': images, 
-            'annotations': annotations, 'categories': categories}, coco, indent=2, sort_keys=True)
+        json.dump({'licenses': licenses, 'info': info, 'categories': categories, 'images': images, 
+            'annotations': annotations}, coco, indent=None, sort_keys=False)
 
 def filter_annotations(annotations, images):
     image_ids = funcy.lmap(lambda i: int(i['id']), images)
